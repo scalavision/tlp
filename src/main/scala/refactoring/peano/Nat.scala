@@ -60,6 +60,8 @@ object Nat:
 
   def toInt[N <: Nat]: ToInt[N] = ??? //ToInt[N]
 
+  // TODO:
+  // scala.compiletime.constValue stuff here
   inline def asInt[N <: Nat](n: N, counter: Int = 0): Int = n match
     case n: Zero => counter
     case n1: Succ[n1] => asInt[n1](n1)(counter + 1)
