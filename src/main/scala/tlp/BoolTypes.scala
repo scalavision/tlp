@@ -1,6 +1,6 @@
 package tlp
 
-import scala.util.Not
+import scala.util.NotGiven
 
 object BoolTypes:
 
@@ -24,7 +24,7 @@ object BoolTypes:
   summon[TrueType#Or[FalseType] =:= TrueType]
   summon[FalseType#Or[TrueType] =:= TrueType]
   summon[FalseType#Or[FalseType] =:= FalseType]
-  summon[Not[TrueType =:= FalseType]]
-  summon[Not[FalseType =:= TrueType]]
+  summon[NotGiven[TrueType =:= FalseType]]
+  summon[NotGiven[FalseType =:= TrueType]]
   
 

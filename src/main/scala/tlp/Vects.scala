@@ -9,6 +9,8 @@ object Vects:
     def map[B](f: A => B): Vect[N, B]
     def zip[B](that: Vect[N, B]): Vect[N, (A, B)]
     def concat[M <: Nat, B >: A](that: Vect[M, B]): Vect[Plus[N, M], B]
+    // A and B have to be numeric
+    // def plus[M <: Nat, B >: A](that: Vect[M, B]): Vect[Plus[N, M], B]
 
   case object Empty extends Vect[Zero, Nothing]:
     val length: Int = 0
@@ -17,13 +19,18 @@ object Vects:
     def concat[M <: Nat, B >: Nothing](that: Vect[M, B]): Vect[M, B] = that
 
   case class Cons[N <: Nat, A](head: A, tail: Vect[N, A]) extends Vect[Succ[N], A]:
+  
     def length: Int = 1 + tail.length
+
     def map[B](f: A => B): Vect[Succ[N], B] =
       Cons(f(head), tail.map(f))
+
     def zip[B](that: Vect[Succ[N], B]): Vect[Succ[N], (A, B)] = that match
       case Cons(h, t) => Cons((head, h), tail.zip(t))
+
     def concat[M <: Nat, B >: A](that: Vect[M, B]): Vect[Plus[Succ[N], M], B] =
       Cons(head, tail.concat(that))
+
     override def toString = s"$head :: ${tail.toString}"
     
   object Vect:

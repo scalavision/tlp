@@ -6,7 +6,9 @@ import scala.quoted.staging._
 
 given Toolbox = Toolbox.make(getClass.getClassLoader)
 
-def showType[T : Type](using QuoteContext): String = summon[Type[T]].show
+//def showType[T : Type](using QuoteContext): String = summon[Type[T]].show
+
+// def showType[T : Type](using p: Printer[TypeRepr]): String = p.show(summon[Type[T]])
 
 type If[C <: Boolean, T, F] = C match
   case true => T

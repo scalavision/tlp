@@ -34,7 +34,7 @@ object TicTacToe2:
 
   def playMove[P <: Player, MS <: Tuple, PL <: Player, PS <: Pos]
       (board: Board[P, MS], move: Move[PL, PS])
-      (using P =:= PL, Filter[MS, ContainsPos[PS]] =:= EmptyTuple)
+      (using P =:= PL, Filter[MS, [M] =>> ContainsPosAux[PS, M]] =:= EmptyTuple)
       : Board[OtherPlayer[P], Move[PL, PS] *: MS] =
     Board[OtherPlayer[P], Move[PL, PS] *: MS](move :: board.moves)
 

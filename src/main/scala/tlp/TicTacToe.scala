@@ -31,7 +31,7 @@ object TicTacToe:
 
   type SamePlayer[P1, P2] = P1 =:= P2
 
-  type LegalMove[M <: Int, OS <: Int, XS <: Int] = Not[BitwiseAnd[M, BitwiseOr[OS, XS]] =:= M]
+  type LegalMove[M <: Int, OS <: Int, XS <: Int] = NotGiven[BitwiseAnd[M, BitwiseOr[OS, XS]] =:= M]
 
   type AddMove[P, M <: Int, OS <: Int, XS <: Int] <: Int = P match
     case O => BitwiseOr[M, OS]
@@ -58,7 +58,7 @@ object TicTacToe:
     case _ => false
   type Contains[MS <: Int] = [WS] =>> ContainsAux[MS, WS]
 
-  type Win[MS <: Int] = Not[Filter[Wins, Contains[MS]] =:= EmptyTuple]
+  type Win[MS <: Int] = NotGiven[Filter[Wins, Contains[MS]] =:= EmptyTuple]
 
   case class Winner[P]()
 

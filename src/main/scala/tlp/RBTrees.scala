@@ -50,11 +50,17 @@ import scala.Ordering.Implicits._
         case RIns(insert: RedInsert[N, A]) extends InsertN[N, A]
         case BIns(insert: BlackInsert[N, A]) extends InsertN[N, A]
       import InsertN._
+
+      import scala.annotation.nowarn
+      @nowarn
       def insertN[C <: Color, N <: Int, A : Ordering](x: A, node: Node[C, N, A]): InsertN[N, A] =
         node match
           case Leaf() => BIns(insertL(x, node))
           case BNode(_, _, _) => BIns(insertB(x, node))
           case RNode(_, _, _) => RIns(insertR(x, node))
+          // case: Node.BNode(Node.RNode(_, _, _), _, _), Node.BNode(_, _, Node.RNode(_, _, _)), Node.RNode(_, _, _) => BIns(insertB(x, node))
+          // case: Node.BNode(Node.RNode(_, _, _), _, _), Node.BNode(_, _, Node.RNode(_, _, _)) => RIns(insertR(x, node))
+
       def insertL[A](x: A, leaf: Node[Black.type, 0, A]): BlackInsert[0, A] =
         NewRed(RNode(Leaf(), x, Leaf()))
       def insertR[N <: Int, A : Ordering](x: A, node: Node[Red.type, N, A]): RedInsert[N, A] =
