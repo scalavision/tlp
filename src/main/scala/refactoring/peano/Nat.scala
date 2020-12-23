@@ -32,11 +32,7 @@ sealed trait Nat
 sealed trait Zero extends Nat
 sealed trait Succ[N <: Nat] extends Nat
 
-import scala.compiletime.S
-
-type ToInt[X <: Nat] <: Int = X match
-  case Zero => 0
-  case Succ[n] => S[ToInt[n]]
+import scala.compiletime._
 
 type Dec[X1 <: Nat] <: Nat = X1 match
   case Succ[n] => n
@@ -49,7 +45,12 @@ type Plus[X1 <: Nat, X2 <: Nat] <: Nat = X1 match
   case Zero => X2
   case Succ[n] => Succ[Plus[n, X2]]
 
+type ToInt[X <: Nat] <: Int = X match
+  case Zero => 0
+  case Succ[n] => S[ToInt[n]]
+
 object Nat:
+
   type +[N1 <: Nat, N2 <: Nat] = Plus[N1, N2]
 
   type One = Succ[Zero]
@@ -57,16 +58,11 @@ object Nat:
   type Three = Succ[Two]
   type Four = Plus[Two, Two]
   type Five = Two + Three
-
-  def toInt[N <: Nat]: ToInt[N] = ??? //ToInt[N]
-
-  // TODO:
-  // scala.compiletime.constValue stuff here
-  inline def asInt[N <: Nat](n: N, counter: Int = 0): Int = n match
-    case n: Zero => counter
-    case n1: Succ[n1] => asInt[n1](n1)(counter + 1)
-
-  // def asInt[N  <: Nat](counter: Int = 0): Nat[N]
+  
+  transparent inline def toIntT[N <: Nat]: Int =
+    inline scala.compiletime.erasedValue[N] match
+      case _: Zero => 0
+      case _: Succ[n] => toIntT[n] + 1
 
 def test() =
   import Nat._

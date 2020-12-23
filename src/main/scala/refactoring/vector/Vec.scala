@@ -33,13 +33,9 @@ object ValueLevel:
 
 import refactoring.peano._
 
-
-
-
-
 sealed trait Vec[Size <: Nat]:
   self =>
-  def size: Int
+  inline def size: Int = Nat.toIntT[Size]
 
   def ::(head: Int): NonEmptyVec[Size] =
     NonEmptyVec[Size](head, self)
@@ -51,14 +47,12 @@ sealed trait Vec[Size <: Nat]:
 case object VNil extends Vec[Zero]:
   self =>
   import Nat._
-  def size: Int = scala.Tuple.Size[Zero]
   def + (that: Vec[Zero]): Vec[Zero] = self
   def ++[Size <: Nat](that: Vec[Size]) = that
 
 case class NonEmptyVec[TailSize <: Nat](head: Int, tail: Vec[TailSize]) extends Vec[Succ[TailSize]]:
   import Nat._
   type Size = Succ[TailSize]
-  def size: Int = 1 + tail.size
 
   def ++[ThatSize <: Nat](that: Vec[ThatSize]) = 
     NonEmptyVec[TailSize + ThatSize](head, tail ++ that)
@@ -72,7 +66,8 @@ def test() =
   val v2 = 2 :: 3 :: VNil
   val vx = 1 :: VNil
 
+
   // val failure = v1 + vx
   
   val v3 = (v1 + v2) ++ (v1 + v2)
-  println(v3)
+  println(v3.size)
