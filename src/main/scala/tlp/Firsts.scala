@@ -23,7 +23,7 @@ object Firsts:
     case x: (_ *: _) => first(Option(x.head))
     case x: Any => Option(x)
 
-  @main
+  // @main
   def runFirsts(): Unit = 
     println(first((1, false, 'a'))) // Some(1)
     println(first("hello")) // Some('h')

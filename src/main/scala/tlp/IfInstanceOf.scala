@@ -18,7 +18,7 @@ object IfInstanceOf:
             if condition(using y) then ifTrue(using y) else ifFalse(using x)
           case _ => ifFalse(using x)
 
-  @main
+  //@main
   def runIfInstanceOf() =
     val x: Any = "hello"
     x.ifInstanceOf[String](it.length > 4)(println(s"string with length greater than 4: $it"))(println(s"not a string or length is less or equal to 4: $it"))

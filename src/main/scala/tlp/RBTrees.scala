@@ -53,11 +53,13 @@ import scala.Ordering.Implicits._
 
       import scala.annotation.nowarn
       @nowarn
-      def insertN[C <: Color, N <: Int, A : Ordering](x: A, node: Node[C, N, A]): InsertN[N, A] =
+      def insertN[C <: Color, N <: Int, A : Ordering](x: A, node: Node[C, N, A]): InsertN[N, A] = ???
+        /*
         node match
           case Leaf() => BIns(insertL(x, node))
           case BNode(_, _, _) => BIns(insertB(x, node))
           case RNode(_, _, _) => RIns(insertR(x, node))
+        */
           // case: Node.BNode(Node.RNode(_, _, _), _, _), Node.BNode(_, _, Node.RNode(_, _, _)), Node.RNode(_, _, _) => BIns(insertB(x, node))
           // case: Node.BNode(Node.RNode(_, _, _), _, _), Node.BNode(_, _, Node.RNode(_, _, _)) => RIns(insertR(x, node))
 
@@ -71,7 +73,8 @@ import scala.Ordering.Implicits._
           case RNode(l, y, r) => insertB(x, r) match
             case BDone(r) => RDone(RNode(l, y, r))
             case NewRed(r) => RRed(RightR(l, y, r))
-      def insertB[N <: Int, A : Ordering](x: A, node: Node[Black.type, N, A]): BlackInsert[N, A] =
+      def insertB[N <: Int, A : Ordering](x: A, node: Node[Black.type, N, A]): BlackInsert[N, A] = ???
+        /*
         node match
           case Leaf() => insertL(x, node)
           case BNode(l, y, r) if x <= y => insertN(x, l) match
@@ -84,6 +87,7 @@ import scala.Ordering.Implicits._
             case BIns(NewRed(r)) => BDone(BNode(l, y, r))
             case RIns(RDone(r)) => BDone(BNode(l, y, r))
             case RIns(RRed(r)) => NewRed(balanceR(l, y, r))
+        */
       def balanceL[C <: Color, N <: Int, A](left: RedRed[N, A], x: A, right: Node[C, N, A]): Node[Red.type, N + 1, A] =
         left match
           case LeftR(RNode(lll, llx, llr), lx, lr) => RNode(BNode(lll, llx, llr), lx, BNode(lr, x, right))
@@ -100,7 +104,7 @@ import scala.Ordering.Implicits._
           case BDone(bn) => RBTree(bn)
           case NewRed(rn) => RBTree(turnBlack(rn))
 
-  @main
+  // @main
   def runRBTrees(): Unit =
     import RBTree._
     val t = (1 to 10).foldRight(empty[Int])(insert)
