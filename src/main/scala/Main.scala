@@ -34,6 +34,10 @@ object Main:
     val clName = macrop.classNameOf[Person]
     pprint.pprintln(clName)
 
+  def testQuiller() =
+    macrop.quill.QuillerSpec.test()
+
   def main(args: Array[String]): Unit =
-    testSimpleMacro() // test2
+    // testSimpleMacro() // test2
+    testQuiller()
     

@@ -135,10 +135,8 @@ object SimpleMacro:
     Printer.TreeCode.show(tree.asTerm.underlyingArgument)
 
     val output = tree match
-      // The complete 'quoted expression gets sent into unapply, and it
-      // returns the Term, where we extract out the String `str` directly. You
-      // need to fully understand how unapply works, in order to understand how this
-      // pattern match works.
+      // The `tree` expression gets sent into unapply, and it
+      // returns the Term, where we extract out the String `str` directly from this.
       case '{ ( ${ UnsealAuto(Literal(StringConstant(str)))}: String ).toUpperCase  } =>
         // str is now an actual string
         println(s"we are uppercasing: ${str}")
