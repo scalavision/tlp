@@ -10,7 +10,7 @@ object PrintMac:
     println("================= The Short Version ==================")
     println(pprint.pprintln(expr.show))
     println("================= The Long Version ===================")
-    println(pprint.pprintln(expr.asTerm.underlyingArgument))
+    pprint.pprintln(expr.asTerm.underlyingArgument)
     '{ () } // just returning an expr of unit
 
   

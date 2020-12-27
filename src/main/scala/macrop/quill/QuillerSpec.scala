@@ -22,12 +22,37 @@ object QuillerSpec:
 
     inline def q = quote { query[Person3] }
     inline def q1 = quote { q.filter(p => p.isHuman) }
-    pprint.pprintln(q1)
-    println(q)
-    run(q)
+    inline def q2 = quote { q1.filter(p => p.isAlien) }
+
+    inline def joeQ = quote { query[Person].filter(p => p.name == "Joe")}
+
+    pprint.pprintln(joeQ)
+    println(joeQ)
+    val actualQuery = run(q2)
+    
+    print(s"query: $actualQuery")
+    
+    println
+    println("==== SUCCESS ====")
+
     //println(result)
     //PrintMac(q)
     //PrintMac(4: Long)
+
+  // how to debug an expression, in order to find a way to match it
+  // in the parser
+
+  def test2a() =
+    val a = "human"
+    val b = "Joe"
+    PrintMac(a == b)
+    // The match expression turns out to be like this:
+    // Apply(Select(Ident(a), ==), List(Ident(b)))
+
+    // beware that it also could be given like this:
+    ParseMac(a == b)
+    // Apply(Select(Literal((123)), ==), List(Ident(b)))
+
 
   def test2() = ()
     /*
