@@ -17,12 +17,65 @@ object Dsl:
 
   def query[T]: Query[T] = throw new IllegalArgumentException("This can only be used inside quoted block")
 
-  object Unseal:
-    def unapply(expr: Expr[_])(using ctx: Quotes): Option[ctx.reflect.Term] = 
-      import ctx.reflect._
-      print("found an expr: ")
-      pprint.pprintln(expr.asTerm.underlyingArgument)
-      Some(expr.asTerm.underlyingArgument)
+  inline def run[T](inline q: Quoted[Query[T]]) = ${ runImpl('q )}
+  def runImpl[T : Type](q: Expr[Quoted[Query[T]]])(using ctx: Quotes): Expr[String] = 
+    import ctx.reflect._
+
+    lazy val unlift = new Unlifter()
+    import unlift._
+
+    lazy val unseal = new UnsealUtil()
+    import unseal._
+
+    object QuotedBlockPuller:
+      def astParse(expr: Expr[Any]): Ast = expr match
+
+        case '{($q: Quoted[tt]).unquote } =>
+          astParse(q)
+
+        case '{Quoted.apply[tt]($ast) } =>
+          unlift(ast)
+
+        /*  
+        case '{ Dsl.query[tt] } =>
+          // looks like this in the old api I think:
+          // tt.unseal.tpe.classSymbol.get.name
+          val typeName = quotes.reflect.TypeRepr.of[tt].classSymbol.get.name
+          Entity(typeName, List())
+
+        case '{ ($query: Query[qt]).filter(${Lambda1(ident, body)}) } =>
+          val queryAst = astParse(query)
+          val identAst: ast.Ident = ast.Ident(ident)
+          val bodyAst = astParse(body.asTerm.underlyingArgument.asExprOf[Any])
+          pprint.pprintln(body.show)
+          Filter(queryAst, identAst, bodyAst)
+        // case Unseal(Select(qctx.reflect.Ident(id: String), prop)) =>
+        
+
+        //case Unseal(Apply(Select(Select(Ident(id), name), op), List(args))) =>
+        case Unseal(Select(Ident(id: String), prop)) =>
+          Property(ast.Ident(id), prop)
+          //report.throwError("STOP!")
+        */
+
+        case Unseal(Typed(inside /*Term*/, _)) =>
+          astParse(inside.asExprOf[Any])
+
+        case _ =>
+          report.throwError(
+            s"""|
+            |syntax error, the following code (AST expression)
+            | ${expr.show} is unsupported, please read the manual!
+            |
+            |${pprint.pprintln(expr.asTerm.underlyingArgument)}
+            |""".stripMargin
+          )      
+
+    val ast = QuotedBlockPuller.astParse(q)
+    print("AST tree: ")
+    pprint.pprintln(ast)
+
+    '{ "foo" }
 
   inline def unquote[T](inline quoted: Quoted[T]): T = ${ unquoteImpl[T]('quoted) }
   def unquoteImpl[T : Type](quoted: Expr[Quoted[T]])(using Quotes): Expr[T] = '{ $quoted.unquote }
@@ -30,6 +83,12 @@ object Dsl:
   inline def quote[T](inline qt: T): Quoted[T] = ${ quoteImpl[T]('qt)}
   def quoteImpl[T](qt: Expr[T])(using qctx: Quotes, t: Type[T]): Expr[Quoted[T]] = 
     import qctx.reflect.{TypeRepr => TType, _}
+
+    lazy val unsealer = new UnsealUtil()
+    import unsealer._
+
+    lazy val unlift = new Unlifter()
+
     val quotedRaw = qt.asTerm.underlyingArgument.asExprOf[Any]
 
 
@@ -80,26 +139,6 @@ object Dsl:
       }
     }
 
-    object Unlifter:
-      def apply(expr: Expr[Ast]): Ast = expr match
-        case '{Entity(${Unseal(Literal(StringConstant(name)))}: String, $list) } =>
-          Entity(name, List())
-
-        case '{Filter($queryAst, $idAst, $propertyAst) } => 
-          val query: Ast = Unlifter(queryAst)
-          val id: ast.Ident = Unlifter(idAst).asInstanceOf[ast.Ident]
-          val prop: Ast = Unlifter(propertyAst)
-          Filter(query, id, prop)
-
-        case '{ ast.Ident(${Unseal(Literal(StringConstant(name)))} ) } =>
-          ast.Ident(name)
-
-        case '{ Property($insideAst, ${Unseal(Literal(StringConstant(name)))})} =>
-          val inside = Unlifter.apply(insideAst)
-          ast.Property(inside, name)
-
-        case _ => report.throwError(s"unable to Unlift ${pprint.apply(expr)}")
-
     // Parses the Expr into a value
     object Parser:
       def astParse(expr: Expr[Any]): Ast = expr match
@@ -108,7 +147,7 @@ object Dsl:
           astParse(q)
 
         case '{Quoted.apply[tt]($ast) } =>
-          Unlifter(ast)
+          unlift(ast)
 
         case '{ Dsl.query[tt] } =>
           // looks like this in the old api I think:
@@ -135,10 +174,15 @@ object Dsl:
         case _ =>
           report.throwError(
             s"""|
-            |syntax error, the following code (AST expression)
-            | ${expr.show} is unsupported, please read the manual!
             |
-            |${pprint.pprintln(expr.asTerm.underlyingArgument)}
+            |syntax error, the following code (AST expression)
+            |is unsupported:
+            |
+            |==================== FULL =====================
+            |${expr.asTerm.underlyingArgument}
+            |
+            |==================== SIMPLE =====================
+            |${expr.show}
             |""".stripMargin
           )
 

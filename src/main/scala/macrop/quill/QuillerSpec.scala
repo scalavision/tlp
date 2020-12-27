@@ -3,7 +3,7 @@ package macrop.quill
 import Dsl._
 
 case class Person(name: String, age: Int)
-case class Person3(name: String, isHuman: Boolean)
+case class Person3(name: String, isHuman: Boolean, isAlien: Boolean)
 case class Person2(name: Name, age: Int)
 case class Name(first: String, last: String)
 
@@ -14,12 +14,18 @@ case class Name(first: String, last: String)
  */
 object QuillerSpec:
 
+  implicit inline def autoUnquote[T](inline quoted: Quoted[T]): T = unquote(quoted)
+
   // given Conversion[T]
   def test() =
     // Quoted[Query[Person]](Entity("Person"))
 
-    inline def q = quote { query[Person3].filter(p => p.isHuman) }
+    inline def q = quote { query[Person3] }
+    inline def q1 = quote { q.filter(p => p.isHuman) }
+    pprint.pprintln(q1)
     println(q)
+    run(q)
+    //println(result)
     //PrintMac(q)
     //PrintMac(4: Long)
 
