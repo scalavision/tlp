@@ -1,35 +1,5 @@
 package refactoring.vector
 
-object ValueLevel:
-
-  sealed trait Vec:
-    def size: Int
-    def ::(head: Int): Vec = NonEmptyVec(head, this)
-    def +(that: Vec): Vec
-    def ++(that: Vec): Vec
-
-  case object VNil extends Vec:
-
-    def size: Int = 0
-
-    def + (that: Vec) =
-      require(that == VNil)
-      this
-
-    def ++(that: Vec): Vec = that
-  
-  case class NonEmptyVec(head: Int, tail: Vec) extends Vec:
-    def size: Int = 1 + tail.size
-    def ++(that: Vec): Vec = NonEmptyVec(head, tail ++ that)
-    def +(that: Vec): Vec = 
-      require(this.size == that.size)
-      that match
-        case NonEmptyVec(h, t) => (head + h) :: (that + t)
-        case VNil => throw new Exception("Boom!! Can only add vectors of equal size")
-
-  def test() =
-    val sum = (1 :: 2 :: VNil) + (3 :: 4 :: VNil)
-    assert(sum == 4 :: 6 :: VNil)
 
 import refactoring.peano._
 
@@ -71,3 +41,37 @@ def test() =
   
   val v3 = (v1 + v2) ++ (v1 + v2)
   println(v3.size)
+
+/**
+ * Old scala way
+ */
+object ValueLevel:
+
+  sealed trait Vec:
+    def size: Int
+    def ::(head: Int): Vec = NonEmptyVec(head, this)
+    def +(that: Vec): Vec
+    def ++(that: Vec): Vec
+
+  case object VNil extends Vec:
+
+    def size: Int = 0
+
+    def + (that: Vec) =
+      require(that == VNil)
+      this
+
+    def ++(that: Vec): Vec = that
+  
+  case class NonEmptyVec(head: Int, tail: Vec) extends Vec:
+    def size: Int = 1 + tail.size
+    def ++(that: Vec): Vec = NonEmptyVec(head, tail ++ that)
+    def +(that: Vec): Vec = 
+      require(this.size == that.size)
+      that match
+        case NonEmptyVec(h, t) => (head + h) :: (that + t)
+        case VNil => throw new Exception("Boom!! Can only add vectors of equal size")
+
+  def test() =
+    val sum = (1 :: 2 :: VNil) + (3 :: 4 :: VNil)
+    assert(sum == 4 :: 6 :: VNil)
